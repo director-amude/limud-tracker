@@ -1,0 +1,17 @@
+{
+  "name": "לוח לימוד – Torah Tracker",
+  "short_name": "לוח לימוד",
+  "description": "מעקב לימוד תנ״ך, משנה, גמרא ושולחן ערוך / Seguimiento de estudio Torah",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0f7ff",
+  "theme_color": "#6366f1",
+  "orientation": "portrait",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["education", "productivity"]
+}

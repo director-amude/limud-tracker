@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>לוח לימוד – Torah Tracker</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#6366f1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="לוח לימוד"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Frank+Ruhl+Libre:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --blue:#6366f1;--blue2:#4f46e5;--bg:#f0f7ff;--white:#fff;--border:#e2e8f0;
+  --text:#1e3a5f;--muted:#64748b;--faint:#94a3b8;
+  --r:14px;--shadow:0 2px 12px rgba(30,58,95,.07);
+  --ind:env(safe-area-inset-bottom,0px);
+}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:calc(64px + var(--ind) + 10px)}
+.he body, [lang=he]{font-family:'Frank Ruhl Libre','Nunito',sans-serif}
+.rtl{direction:rtl;text-align:right}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--white);box-shadow:0 1px 0 var(--border);position:sticky;top:0;z-index:50}
+.topbar-in{max-width:520px;margin:0 auto;display:flex;align-items:center;height:54px;padding:0 16px;gap:10px}
+.app-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.app-title{font-weight:900;font-size:15px;line-height:1.1}
+.app-sub{font-size:9px;color:var(--faint);font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.lang-toggle{margin-left:auto;background:#f1f5f9;border:none;border-radius:20px;padding:5px 12px;font-family:inherit;font-weight:800;font-size:12px;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:5px}
+.lang-toggle:active{transform:scale(.95)}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);z-index:50;display:flex;padding-bottom:var(--ind)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 2px;border:none;background:none;cursor:pointer;font-family:inherit;gap:2px;transition:.15s;min-width:0}
+.bnav-icon{font-size:19px;line-height:1}
+.bnav-lbl{font-size:9px;font-weight:800;color:var(--faint);letter-spacing:.2px;white-space:nowrap}
+.bnav-btn.on .bnav-lbl{color:var(--blue)}
+.bnav-dot{width:4px;height:4px;border-radius:50%;background:var(--blue);opacity:0;margin-top:1px}
+.bnav-btn.on .bnav-dot{opacity:1}
+
+/* ── MAIN ── */
+#app{max-width:520px;margin:0 auto;padding:18px 14px 0}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.card-flush{padding:0;overflow:hidden}
+
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:10px;padding:10px 18px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:5px}
+.btn:active{transform:scale(.95)}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:var(--blue2)}
+.btn-ghost{background:#f1f5f9;color:var(--muted)}
+.btn-sm{padding:7px 12px;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+.btn-icon{width:32px;height:32px;padding:0;border-radius:8px;justify-content:center;font-size:15px}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:calc(68px + var(--ind));right:16px;width:50px;height:50px;border-radius:50%;background:var(--blue);color:#fff;font-size:24px;border:none;cursor:pointer;box-shadow:0 4px 18px rgba(99,102,241,.4);display:flex;align-items:center;justify-content:center;z-index:40;transition:.15s}
+.fab:active{transform:scale(.9)}
+
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:800;white-space:nowrap}
+
+/* ── FORMS ── */
+.inp{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;outline:none;background:#f8fafc;transition:.15s;color:var(--text)}
+.inp:focus{border-color:var(--blue);background:var(--white)}
+.sel{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;outline:none;background:#f8fafc;appearance:none;color:var(--text)}
+.sel:focus{border-color:var(--blue)}
+.lbl{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px}
+textarea.inp{min-height:64px;resize:none}
+.field{margin-bottom:12px}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.type-opt{border:2px solid var(--border);border-radius:10px;padding:9px 6px;cursor:pointer;font-weight:800;font-size:11px;text-align:center;transition:.15s;background:var(--white);font-family:inherit;display:block;width:100%}
+.type-opt input{display:none}
+.chaz-iv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.iv-opt{border:2px solid var(--border);border-radius:10px;padding:9px 6px;cursor:pointer;font-weight:800;font-size:10px;text-align:center;transition:.15s;background:var(--white);font-family:inherit;display:block;width:100%}
+.iv-opt input{display:none}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:flex-end;backdrop-filter:blur(3px)}
+.mbox{background:var(--white);border-radius:22px 22px 0 0;padding:20px 16px;width:100%;max-height:94vh;overflow-y:auto;padding-bottom:calc(20px + var(--ind))}
+.mhandle{width:38px;height:4px;border-radius:99px;background:var(--border);margin:0 auto 16px}
+.mbox h3{font-weight:900;font-size:17px;margin-bottom:14px}
+
+/* ── DAF GRID (Gemara) ── */
+.daf-grid{display:flex;flex-direction:column;gap:0}
+.masechet-block{border-bottom:1px solid var(--border)}
+.masechet-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:var(--white);user-select:none}
+.masechet-header:hover{background:#f8fafc}
+.masechet-title{font-weight:900;font-size:14px}
+.masechet-stats{font-size:11px;color:var(--faint)}
+.daf-amudim{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:5px;padding:10px 14px 14px}
+.amud-btn{height:34px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;transition:.15s;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:1px}
+.amud-btn.done{background:#6366f1;border-color:#6366f1;color:#fff}
+.amud-btn.done-review{background:#10b981;border-color:#10b981;color:#fff}
+.amud-btn:active{transform:scale(.92)}
+.seder-header{background:#f8fafc;padding:8px 14px;font-size:10px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
+
+/* ── MISHNA GRID ── */
+.perek-block{padding:10px 14px;border-bottom:1px solid #f1f5f9}
+.perek-title{font-weight:800;font-size:12px;color:var(--muted);margin-bottom:6px}
+.mishna-pills{display:flex;flex-wrap:wrap;gap:5px}
+.mishna-btn{width:34px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);font-family:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:.15s;color:var(--muted)}
+.mishna-btn.done{background:#6366f1;border-color:#6366f1;color:#fff}
+.mishna-btn.done-review{background:#10b981;border-color:#10b981;color:#fff}
+
+/* ── SIMAN GRID ── */
+.siman-grid{display:flex;flex-wrap:wrap;gap:5px;padding:10px 14px}
+.siman-btn{min-width:38px;height:28px;padding:0 6px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);font-family:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:.15s;color:var(--muted)}
+.siman-btn.done{background:#6366f1;border-color:#6366f1;color:#fff}
+.siman-btn.done-review{background:#10b981;border-color:#10b981;color:#fff}
+
+/* ── TANACH GRID ── */
+.perek-tanach-grid{display:flex;flex-wrap:wrap;gap:5px;padding:10px 14px}
+.perek-btn{min-width:34px;height:28px;padding:0 5px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);font-family:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:.15s;color:var(--muted)}
+.perek-btn.done{background:#6366f1;border-color:#6366f1;color:#fff}
+.perek-btn.done-review{background:#10b981;border-color:#10b981;color:#fff}
+
+/* ── GOALS ── */
+.goal-card{border-left:4px solid;border-radius:var(--r);padding:14px;background:var(--white);box-shadow:var(--shadow);margin-bottom:10px}
+.pbar{height:7px;background:var(--border);border-radius:99px;overflow:hidden}
+.pfill{height:100%;border-radius:99px;transition:width .4s}
+
+/* ── CHAZ ── */
+.chaz-card{border-left:4px solid;border-radius:var(--r);padding:13px;background:var(--white);box-shadow:var(--shadow);margin-bottom:10px}
+
+/* ── STAT CARDS ── */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.stat-card{background:var(--white);border-radius:12px;padding:12px 10px;box-shadow:var(--shadow);text-align:center}
+.stat-num{font-size:24px;font-weight:900;line-height:1.1}
+.stat-lbl{font-size:10px;color:var(--faint);font-weight:700;margin-top:2px}
+
+/* ── SEC GRID ── */
+.sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sec-card{border-radius:var(--r);padding:13px;cursor:pointer;background:var(--white);box-shadow:var(--shadow);border-top:4px solid transparent;transition:.15s}
+.sec-card:active{transform:scale(.97)}
+
+/* ── MISC ── */
+.row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.row:last-child{border-bottom:none}
+.sec-icon-sm{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.badge-alert{border-radius:12px;padding:10px 13px;font-size:12px;font-weight:800;margin-bottom:10px}
+.empty{text-align:center;padding:32px 16px;color:var(--faint);font-size:13px;line-height:1.6}
+.section-heading{font-size:10px;font-weight:900;color:var(--faint);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 8px;padding:0 2px}
+.dayb{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--white);font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;color:var(--muted)}
+.dayb.on{background:var(--blue);border-color:var(--blue);color:#fff}
+input[type=range]{accent-color:var(--blue);width:100%}
+input[type=checkbox]{accent-color:var(--blue);width:15px;height:15px;cursor:pointer}
+
+/* ── INSTALL BANNER ── */
+.install-banner{background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.install-banner button{background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-family:inherit;font-weight:800;font-size:11px;cursor:pointer}
+
+/* ── LEGEND ── */
+.legend{display:flex;gap:10px;align-items:center;font-size:10px;color:var(--muted);margin-bottom:8px;flex-wrap:wrap;padding:0 2px}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+
+/* ── CONTEXT MENU for amudim ── */
+.ctx-menu{position:fixed;background:var(--white);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.18);z-index:500;overflow:hidden;min-width:160px}
+.ctx-item{padding:11px 16px;font-size:13px;font-weight:700;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px}
+.ctx-item:last-child{border-bottom:none}
+.ctx-item:hover{background:#f8fafc}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fadeup{animation:fadeup .22s ease forwards}
+@keyframes tpop{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.toast-box{position:fixed;bottom:calc(74px + var(--ind));left:50%;transform:translateX(-50%);z-index:300;padding:10px 20px;border-radius:12px;font-weight:800;font-size:12px;box-shadow:0 6px 24px rgba(0,0,0,.16);white-space:nowrap;animation:tpop .25s ease;pointer-events:none}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="app-icon">📚</div>
+    <div>
+      <div class="app-title">לוח לימוד</div>
+      <div class="app-sub" id="app-sub-lbl">Panel de Estudio</div>
+    </div>
+    <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">🌐 עברית</button>
+  </div>
+</div>
+
+<div id="app">
+  <div id="view-home"  class="view fadeup"></div>
+  <div id="view-logs"  class="view" style="display:none"></div>
+  <div id="view-goals" class="view" style="display:none"></div>
+  <div id="view-chaz"  class="view" style="display:none"></div>
+  <div id="view-study" class="view" style="display:none"></div>
+</div>
+
+<button class="fab" id="fab" title="Nueva sesión">＋</button>
+
+<nav class="bnav" id="bnav">
+  <button class="bnav-btn on" data-tab="home"><span class="bnav-icon">🏠</span><span class="bnav-lbl" data-t="home">Inicio</span><span class="bnav-dot"></span></button>
+  <button class="bnav-btn" data-tab="study"><span class="bnav-icon">📚</span><span class="bnav-lbl" data-t="logs">Estudio</span><span class="bnav-dot"></span></button>
+  <button class="bnav-btn" data-tab="goals"><span class="bnav-icon">🎯</span><span class="bnav-lbl" data-t="goals">Metas</span><span class="bnav-dot"></span></button>
+  <button class="bnav-btn" data-tab="chaz"><span class="bnav-icon">🧠</span><span class="bnav-lbl" data-t="chaz">Jazarot</span><span class="bnav-dot"></span></button>
+  <button class="bnav-btn" data-tab="logs"><span class="bnav-icon">📋</span><span class="bnav-lbl" data-t="logs">Log</span><span class="bnav-dot"></span></button>
+</nav>
+
+<div id="modal-root"></div>
+<div id="ctx-root"></div>
+<div id="toast-root"></div>
+
+<script src="data.js"></script>
+<script>
+/* ═══ STATE ════════════════════════════════════════════════════ */
+let lang = localStorage.getItem("tt_lang") || "es";
+const gs = (k,d)=>{ try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;} };
+const ss = (k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
+
+// progress[section][bookId][unitId] = "study" | "review" | "chazer" | null
+let progress  = gs("tt4_progress", {tanach:{},mishnah:{},gemara:{},shulchan:{}});
+let logs      = gs("tt4_logs", []);
+let goals     = gs("tt4_goals", []);
+let chazGoals = gs("tt4_chaz", []);
+let reminders = gs("tt4_rem", []);
+
+const save = () => {
+  ss("tt4_progress", progress); ss("tt4_logs", logs);
+  ss("tt4_goals", goals); ss("tt4_chaz", chazGoals);
+  ss("tt4_rem", reminders);
+};
+
+/* ensure sub-objects exist */
+["tanach","mishnah","gemara","shulchan"].forEach(s=>{if(!progress[s])progress[s]={};});
+
+let currentTab = "home";
+let _studySection = "gemara";
+
+/* ═══ HELPERS ══════════════════════════════════════════════════ */
+const t  = (k) => T[lang][k] || T.es[k] || k;
+const today = () => new Date().toISOString().split("T")[0];
+const addDays = (d,n)=>{ const x=new Date(d); x.setDate(x.getDate()+n); return x.toISOString().split("T")[0]; };
+const daysLeft = (d)=> Math.ceil((new Date(d)-new Date(today()))/86400000);
+const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2);
+const hsl = (h,s,l,a=1)=>`hsla(${h},${s}%,${l}%,${a})`;
+
+function secColor(s){ return SECTIONS_META[s]?.hue||250; }
+function secPill(s){
+  const m=SECTIONS_META[s]; if(!m)return "";
+  return `<span class="pill" style="background:${hsl(m.hue,80,92)};color:${hsl(m.hue,65,35)}">${m.emoji} ${m[lang]||m.es}</span>`;
+}
+
+/* ═══ LANGUAGE ═════════════════════════════════════════════════ */
+function toggleLang(){
+  lang = lang==="es" ? "he" : "es";
+  localStorage.setItem("tt_lang", lang);
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang==="he" ? "rtl" : "ltr";
+  document.getElementById("lang-btn").textContent = lang==="es" ? "🌐 עברית" : "🌐 Español";
+  document.getElementById("app-sub-lbl").textContent = t("appSub");
+  renderAll();
+}
+
+function renderAll(){
+  const fns = {home:renderHome, study:renderStudy, goals:renderGoals, chaz:renderChaz, logs:renderLogs};
+  if(fns[currentTab]) fns[currentTab]();
+  // update bottom nav labels
+  document.querySelectorAll(".bnav-lbl[data-t]").forEach(el=>{
+    // map tab → translation key
+    const tab = el.closest(".bnav-btn").dataset.tab;
+    const keys = {home:"home",study:"logs",goals:"goals",chaz:"chaz",logs:"logs"};
+    const labels = {home:t("home"),study:lang==="he"?"לימוד":"Estudio",goals:t("goals"),chaz:t("chaz"),logs:lang==="he"?"יומן":"Log"};
+    el.textContent = labels[tab]||"";
+  });
+}
+
+/* ═══ TOAST ════════════════════════════════════════════════════ */
+let _tt;
+function toast(msg, ok=true){
+  clearTimeout(_tt);
+  const el=document.getElementById("toast-root");
+  el.innerHTML=`<div class="toast-box" style="background:${ok?"#1e3a5f":"#f43f5e"}">${msg}</div>`;
+  _tt=setTimeout(()=>el.innerHTML="",2400);
+}
+
+/* ═══ MODAL ════════════════════════════════════════════════════ */
+function openModal(html){
+  const root=document.getElementById("modal-root");
+  root.innerHTML=`<div class="overlay" id="ov"><div class="mbox"><div class="mhandle"></div>${html}</div></div>`;
+  document.getElementById("ov").addEventListener("click",e=>{if(e.target.id==="ov")closeModal();});
+}
+function closeModal(){document.getElementById("modal-root").innerHTML="";}
+
+/* ═══ CONTEXT MENU ═════════════════════════════════════════════ */
+function showCtx(e, items){
+  document.getElementById("ctx-root").innerHTML="";
+  const menu=document.createElement("div");
+  menu.className="ctx-menu";
+  menu.style.top=(e.clientY-10)+"px";
+  menu.style.left=Math.min(e.clientX, window.innerWidth-180)+"px";
+  items.forEach(it=>{
+    const d=document.createElement("div");
+    d.className="ctx-item";
+    d.innerHTML=it.label;
+    d.onclick=()=>{ document.getElementById("ctx-root").innerHTML=""; it.fn(); };
+    menu.appendChild(d);
+  });
+  document.getElementById("ctx-root").appendChild(menu);
+  setTimeout(()=>document.addEventListener("click",closeCtx,{once:true}),50);
+}
+function closeCtx(){ document.getElementById("ctx-root").innerHTML=""; }
+
+/* ═══ PROGRESS HELPERS ═════════════════════════════════════════ */
+function getP(section, bookId, unitId){ return progress[section]?.[bookId]?.[unitId]||null; }
+function setP(section, bookId, unitId, val){
+  if(!progress[section]) progress[section]={};
+  if(!progress[section][bookId]) progress[section][bookId]={};
+  if(val===null) delete progress[section][bookId][unitId];
+  else progress[section][bookId][unitId]=val;
+  save();
+}
+function countDone(section, bookId){ return Object.keys(progress[section]?.[bookId]||{}).length; }
+function countByType(section, bookId, type){ return Object.values(progress[section]?.[bookId]||{}).filter(v=>v===type).length; }
+function totalDoneSection(section){
+  let n=0; Object.values(progress[section]||{}).forEach(bk=>n+=Object.keys(bk).length); return n;
+}
+
+/* ═══ HOME ═════════════════════════════════════════════════════ */
+function renderHome(){
+  const dueChaz=chazGoals.filter(c=>!c.done&&c.nextDate<=today());
+  const overdueGoals=goals.filter(g=>!g.done&&g.deadline<today());
+
+  // stat cards
+  const todayLogs=logs.filter(l=>l.date===today()).length;
+  const weekLogs=logs.filter(l=>daysLeft(l.date)>=-7).length;
+  const totalStreak=chazGoals.reduce((a,c)=>a+c.streak,0);
+
+  let alerts="";
+  if(dueChaz.length) alerts+=`<div class="badge-alert" style="background:#fffbeb;border:2px solid #fde68a;color:#92400e">🔥 ${dueChaz.length} ${t("dueTodayAlert")} <span style="color:var(--blue);cursor:pointer;font-weight:900" onclick="setTab('chaz')">${t("goTo")}</span></div>`;
+  if(overdueGoals.length) alerts+=`<div class="badge-alert" style="background:#fff1f2;border:2px solid #fecdd3;color:#e11d48">⚠️ ${overdueGoals.length} ${t("overdueAlert")} <span style="color:var(--blue);cursor:pointer;font-weight:900" onclick="setTab('goals')">${t("goTo")}</span></div>`;
+
+  // section cards
+  let secCards="";
+  for(const [k,s] of Object.entries(SECTIONS_META)){
+    const done=totalDoneSection(k);
+    const wLogs=logs.filter(l=>l.section===k&&daysLeft(l.date)>=-7).length;
+    secCards+=`<div class="sec-card" style="border-top-color:${hsl(s.hue,75,55)}" onclick="setTab('study');_studySection='${k}';renderStudy()">
+      <div style="font-size:22px;margin-bottom:4px">${s.emoji}</div>
+      <div style="font-weight:900;font-size:16px;color:${hsl(s.hue,65,38)}">${s[lang]||s.es}</div>
+      <div style="font-size:27px;font-weight:900;color:var(--text);margin:4px 0">${done}</div>
+      <div style="font-size:10px;color:var(--faint)">${lang==="he"?"יח׳ נלמדו":"unidades"} · ${lang==="he"?"שבוע":"sem"}: <b style="color:${hsl(s.hue,65,38)}">${wLogs}</b></div>
+    </div>`;
+  }
+
+  // recent logs
+  let recentHtml="";
+  logs.slice(0,5).forEach(l=>{
+    const sm=SECTIONS_META[l.section]; const st=STUDY_TYPES.find(x=>x.id===l.type);
+    recentHtml+=`<div class="row">
+      <div class="sec-icon-sm" style="background:${hsl(sm?.hue||250,80,92)}">${sm?.emoji}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:800;font-size:13px">${l.bookName||""}</div>
+        <div style="font-size:12px;color:var(--muted)">${l.unitLabel||""}</div>
+        <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${secPill(l.section)}</div>
+      </div>
+      <div style="font-size:10px;color:var(--faint);flex-shrink:0">${l.date}</div>
+    </div>`;
+  });
+  if(!logs.length) recentHtml=`<div class="empty">${t("noLogs")}</div>`;
+
+  document.getElementById("view-home").innerHTML=`
+    <div id="install-area"></div>
+    ${alerts}
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num" style="color:var(--blue)">${todayLogs}</div><div class="stat-lbl">${t("todaySessions")}</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#10b981">${weekLogs}</div><div class="stat-lbl">${t("weekSessions")}</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#f59e0b">${totalStreak}</div><div class="stat-lbl">🔥 ${t("totalStreak")}</div></div>
+    </div>
+    <div class="sec-grid">${secCards}</div>
+    <div class="card card-flush">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px 0">
+        <span style="font-weight:900;font-size:14px">🕐 ${t("recentActivity")}</span>
+        <button class="btn btn-blue btn-sm" onclick="openLogModal()">+ ${lang==="he"?"שיעור":"Sesión"}</button>
+      </div>
+      <div style="padding:0 2px">${recentHtml}</div>
+    </div>`;
+
+  if(window._deferredInstall){
+    document.getElementById("install-area").innerHTML=`
+      <div class="install-banner">
+        <span style="font-size:22px">📲</span>
+        <div style="flex:1"><b style="font-size:13px">${t("install")}</b><br><span style="font-size:11px;opacity:.85">${t("installDesc")}</span></div>
+        <button onclick="installPWA()">${lang==="he"?"התקן":"Instalar"}</button>
+      </div>`;
+  }
+}
+
+/* ═══ STUDY VIEW (the main interactive tracker) ════════════════ */
+function renderStudy(){
+  const tabs = Object.entries(SECTIONS_META).map(([k,s])=>
+    `<button onclick="_studySection='${k}';renderStudy()" style="border:none;border-radius:9px;padding:7px 13px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;background:${_studySection===k?hsl(s.hue,75,55):"#f1f5f9"};color:${_studySection===k?"#fff":hsl(s.hue,65,38)};transition:.15s">${s.emoji} ${s[lang]||s.es}</button>`
+  ).join("");
+
+  let body="";
+  if(_studySection==="gemara") body=renderGemaraGrid();
+  else if(_studySection==="mishnah") body=renderMishnakGrid();
+  else if(_studySection==="tanach") body=renderTanachGrid();
+  else if(_studySection==="shulchan") body=renderShulchanGrid();
+
+  document.getElementById("view-study").innerHTML=`
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">${tabs}</div>
+    <div class="legend">
+      <div class="legend-dot" style="background:var(--blue)"></div><span>${t("study")}</span>
+      <div class="legend-dot" style="background:#10b981"></div><span>${t("review")}</span>
+      <div class="legend-dot" style="background:var(--border)"></div><span>${lang==="he"?"לא נלמד":"Sin estudiar"}</span>
+    </div>
+    <div class="card card-flush">${body}</div>`;
+}
+
+/* ── GEMARA GRID ── */
+function renderGemaraGrid(){
+  let html="";
+  for(const [sederId, seder] of Object.entries(SHAS)){
+    html+=`<div class="seder-header">${seder[lang]||seder.he} — ${seder[lang==="he"?"he":"es"]}</div>`;
+    seder.masechtot.forEach(m=>{
+      const done=countDone("gemara", m.id);
+      const total=m.dafim*2; // each daf has 2 amudim (a+b), starting daf 2
+      const pct=total>0?Math.round(done/total*100):0;
+      // build amudim
+      let amudHtml="";
+      for(let daf=2; daf<=m.dafim+1; daf++){
+        ["א","ב"].forEach((amud,ai)=>{
+          const unitId=`${daf}${amud}`;
+          const state=getP("gemara",m.id,unitId);
+          const cls=state==="study"?"done":state==="review"?"done-review":"";
+          amudHtml+=`<button class="amud-btn ${cls}" id="ab-${m.id}-${unitId}" 
+            onclick="cycleUnit(event,'gemara','${m.id}','${unitId}','amud-btn')"
+            oncontextmenu="unitCtxMenu(event,'gemara','${m.id}','${unitId}','amud-btn');return false"
+            title="${daf}${amud}">${daf}<span style="font-size:8px">${amud}</span></button>`;
+        });
+      }
+      html+=`<div class="masechet-block">
+        <div class="masechet-header" onclick="toggleBlock('mb-${m.id}')">
+          <div>
+            <div class="masechet-title">${m[lang==="he"?"he":"es"]}</div>
+            <div class="masechet-stats">${done}/${total} · ${pct}%</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="pbar" style="width:80px"><div class="pfill" style="width:${pct}%;background:var(--blue)"></div></div>
+            <span id="arr-mb-${m.id}" style="color:var(--faint);font-size:12px">▼</span>
+          </div>
+        </div>
+        <div id="mb-${m.id}" style="display:none">
+          <div class="daf-amudim">${amudHtml}</div>
+        </div>
+      </div>`;
+    });
+  }
+  return html;
+}
+
+/* ── MISHNAH GRID ── */
+function renderMishnakGrid(){
+  let html="";
+  for(const [sederId, seder] of Object.entries(MISHNAH)){
+    html+=`<div class="seder-header">${seder[lang==="he"?"he":"es"]}</div>`;
+    seder.masechtot.forEach(m=>{
+      const total=m.perakim.reduce((a,b)=>a+b,0);
+      const done=countDone("mishnah",m.id);
+      const pct=total>0?Math.round(done/total*100):0;
+      let perekHtml="";
+      m.perakim.forEach((mishCount,pi)=>{
+        const pNum=pi+1;
+        let mBtns="";
+        for(let mi=1;mi<=mishCount;mi++){
+          const uid=`p${pNum}m${mi}`;
+          const state=getP("mishnah",m.id,uid);
+          const cls=state==="study"?"done":state==="review"?"done-review":"";
+          mBtns+=`<button class="mishna-btn ${cls}"
+            onclick="cycleUnit(event,'mishnah','${m.id}','${uid}','mishna-btn')"
+            oncontextmenu="unitCtxMenu(event,'mishnah','${m.id}','${uid}','mishna-btn');return false"
+            title="${t('perek')} ${pNum} ${t('mishna')} ${mi}">${mi}</button>`;
+        }
+        perekHtml+=`<div class="perek-block">
+          <div class="perek-title">${lang==="he"?"פרק":"Cap."} ${pNum}</div>
+          <div class="mishna-pills">${mBtns}</div>
+        </div>`;
+      });
+      html+=`<div class="masechet-block">
+        <div class="masechet-header" onclick="toggleBlock('mm-${m.id}')">
+          <div>
+            <div class="masechet-title">${m[lang==="he"?"he":"es"]}</div>
+            <div class="masechet-stats">${done}/${total} · ${pct}%</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="pbar" style="width:80px"><div class="pfill" style="width:${pct}%;background:#10b981"></div></div>
+            <span id="arr-mm-${m.id}" style="color:var(--faint);font-size:12px">▼</span>
+          </div>
+        </div>
+        <div id="mm-${m.id}" style="display:none">${perekHtml}</div>
+      </div>`;
+    });
+  }
+  return html;
+}
+
+/* ── TANACH GRID ── */
+function renderTanachGrid(){
+  let html="";
+  for(const [secId, sec] of Object.entries(TANACH)){
+    html+=`<div class="seder-header">${sec[lang==="he"?"he":"es"]}</div>`;
+    sec.books.forEach(b=>{
+      const done=countDone("tanach",b.id);
+      const pct=b.perakim>0?Math.round(done/b.perakim*100):0;
+      let btns="";
+      for(let p=1;p<=b.perakim;p++){
+        const uid=`p${p}`;
+        const state=getP("tanach",b.id,uid);
+        const cls=state==="study"?"done":state==="review"?"done-review":"";
+        btns+=`<button class="perek-btn ${cls}"
+          onclick="cycleUnit(event,'tanach','${b.id}','${uid}','perek-btn')"
+          oncontextmenu="unitCtxMenu(event,'tanach','${b.id}','${uid}','perek-btn');return false"
+          title="${t('perek')} ${p}">${p}</button>`;
+      }
+      html+=`<div class="masechet-block">
+        <div class="masechet-header" onclick="toggleBlock('tb-${b.id}')">
+          <div>
+            <div class="masechet-title">${b[lang==="he"?"he":"es"]}</div>
+            <div class="masechet-stats">${done}/${b.perakim} ${lang==="he"?"פרקים":"cap."} · ${pct}%</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="pbar" style="width:80px"><div class="pfill" style="width:${pct}%;background:${hsl(142,65,50)}"></div></div>
+            <span id="arr-tb-${b.id}" style="color:var(--faint);font-size:12px">▼</span>
+          </div>
+        </div>
+        <div id="tb-${b.id}" style="display:none">
+          <div class="perek-tanach-grid">${btns}</div>
+        </div>
+      </div>`;
+    });
+  }
+  return html;
+}
+
+/* ── SHULCHAN GRID ── */
+function renderShulchanGrid(){
+  let html="";
+  SHULCHAN.forEach(chelk=>{
+    const done=countDone("shulchan",chelk.id);
+    const pct=chelk.simanim>0?Math.round(done/chelk.simanim*100):0;
+    let btns="";
+    for(let s=1;s<=chelk.simanim;s++){
+      const uid=`s${s}`;
+      const state=getP("shulchan",chelk.id,uid);
+      const cls=state==="study"?"done":state==="review"?"done-review":"";
+      btns+=`<button class="siman-btn ${cls}"
+        onclick="cycleUnit(event,'shulchan','${chelk.id}','${uid}','siman-btn')"
+        oncontextmenu="unitCtxMenu(event,'shulchan','${chelk.id}','${uid}','siman-btn');return false"
+        title="${t('siman')} ${s}">${s}</button>`;
+    }
+    html+=`<div class="masechet-block">
+      <div class="masechet-header" onclick="toggleBlock('sc-${chelk.id}')">
+        <div>
+          <div class="masechet-title">${chelk[lang==="he"?"he":"es"]}</div>
+          <div class="masechet-stats">${done}/${chelk.simanim} ${lang==="he"?"סימנים":"sim."} · ${pct}%</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="pbar" style="width:80px"><div class="pfill" style="width:${pct}%;background:${hsl(339,65,55)}"></div></div>
+          <span id="arr-sc-${chelk.id}" style="color:var(--faint);font-size:12px">▼</span>
+        </div>
+      </div>
+      <div id="sc-${chelk.id}" style="display:none">
+        <div class="siman-grid">${btns}</div>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+/* ── TOGGLE BLOCK ── */
+function toggleBlock(id){
+  const el=document.getElementById(id); if(!el) return;
+  const open=el.style.display==="none";
+  el.style.display=open?"block":"none";
+  const arr=document.getElementById("arr-"+id);
+  if(arr) arr.textContent=open?"▲":"▼";
+}
+
+/* ── CYCLE UNIT STATE (tap = cycle: none→study→review→none) ── */
+function cycleUnit(e, section, bookId, unitId, btnClass){
+  e.preventDefault();
+  const cur=getP(section,bookId,unitId);
+  const next=cur===null?"study":cur==="study"?"review":null;
+  setP(section,bookId,unitId,next);
+  // log if marking as study
+  if(next==="study"||next==="review"){
+    addProgressLog(section, bookId, unitId, next==="review"?"review":"study");
+  }
+  // update button visually
+  const btn=e.target.closest("button")||e.target;
+  btn.className=`${btnClass} ${next==="study"?"done":next==="review"?"done-review":""}`;
+  // update stats in header
+  updateMasechetStats(section, bookId);
+  toast(next===null?"⬜ "+t("unmark"):next==="study"?"📖 "+t("study"):"🔄 "+t("review"), true);
+}
+
+/* ── CONTEXT MENU for long-press ── */
+function unitCtxMenu(e, section, bookId, unitId, btnClass){
+  e.preventDefault();
+  const cur=getP(section,bookId,unitId);
+  showCtx(e, [
+    {label:`📖 ${t("study")}`, fn:()=>{ setP(section,bookId,unitId,"study"); addProgressLog(section,bookId,unitId,"study"); refreshBtn(section,bookId,unitId,btnClass,"study"); updateMasechetStats(section,bookId); }},
+    {label:`🔄 ${t("review")}`, fn:()=>{ setP(section,bookId,unitId,"review"); addProgressLog(section,bookId,unitId,"review"); refreshBtn(section,bookId,unitId,btnClass,"review"); updateMasechetStats(section,bookId); }},
+    {label:`🧠 ${t("chazer")}`, fn:()=>{ setP(section,bookId,unitId,"chazer"); addProgressLog(section,bookId,unitId,"chazer"); refreshBtn(section,bookId,unitId,btnClass,"chazer"); updateMasechetStats(section,bookId); }},
+    {label:`⬜ ${t("unmark")}`, fn:()=>{ setP(section,bookId,unitId,null); refreshBtn(section,bookId,unitId,btnClass,null); updateMasechetStats(section,bookId); }},
+  ]);
+}
+
+function refreshBtn(section, bookId, unitId, btnClass, state){
+  // Try all possible ID patterns
+  const patterns = [
+    `ab-${bookId}-${unitId}`,
+  ];
+  patterns.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.className=`${btnClass} ${state==="study"?"done":state==="review"?"done-review":state==="chazer"?"done-review":""}`;
+  });
+  // fallback: find by data
+  document.querySelectorAll(`.${btnClass}`).forEach(btn=>{
+    if(btn.id===`ab-${bookId}-${unitId}`) btn.className=`${btnClass} ${state==="study"?"done":state==="review"?"done-review":state==="chazer"?"done-review":""}`;
+  });
+}
+
+function updateMasechetStats(section, bookId){
+  // re-render is too expensive; just update the stat text
+  const tryIds = [`mb-${bookId}`,`mm-${bookId}`,`tb-${bookId}`,`sc-${bookId}`];
+  tryIds.forEach(id=>{
+    const block=document.getElementById(id);
+    if(block){
+      const header=block.previousElementSibling;
+      if(header){
+        const statsEl=header.querySelector(".masechet-stats");
+        if(statsEl){
+          const done=countDone(section,bookId);
+          // find total from data
+          let total=0;
+          if(section==="gemara"){
+            for(const s of Object.values(SHAS)) for(const m of s.masechtot) if(m.id===bookId) total=m.dafim*2;
+          } else if(section==="mishnah"){
+            for(const s of Object.values(MISHNAH)) for(const m of s.masechtot) if(m.id===bookId) total=m.perakim.reduce((a,b)=>a+b,0);
+          } else if(section==="tanach"){
+            for(const s of Object.values(TANACH)) for(const b of s.books) if(b.id===bookId) total=b.perakim;
+          } else if(section==="shulchan"){
+            const ch=SHULCHAN.find(c=>c.id===bookId); if(ch) total=ch.simanim;
+          }
+          const pct=total>0?Math.round(done/total*100):0;
+          statsEl.textContent=`${done}/${total} · ${pct}%`;
+          const fill=header.querySelector(".pfill");
+          if(fill) fill.style.width=pct+"%";
+        }
+      }
+    }
+  });
+}
+
+function addProgressLog(section, bookId, unitId, type){
+  // get human-readable names
+  const sm=SECTIONS_META[section];
+  let bookName="", unitLabel="";
+  if(section==="gemara"){
+    for(const s of Object.values(SHAS)) for(const m of s.masechtot) if(m.id===bookId){ bookName=m[lang==="he"?"he":"es"]; break; }
+    unitLabel=`${t("daf")} ${unitId}`;
+  } else if(section==="mishnah"){
+    for(const s of Object.values(MISHNAH)) for(const m of s.masechtot) if(m.id===bookId){ bookName=m[lang==="he"?"he":"es"]; break; }
+    unitLabel=unitId.replace("p",`${t("perek")} `).replace("m",` ${t("mishna")} `);
+  } else if(section==="tanach"){
+    for(const s of Object.values(TANACH)) for(const b of s.books) if(b.id===bookId){ bookName=b[lang==="he"?"he":"es"]; break; }
+    unitLabel=`${t("perek")} ${unitId.replace("p","")}`;
+  } else if(section==="shulchan"){
+    const ch=SHULCHAN.find(c=>c.id===bookId); if(ch) bookName=ch[lang==="he"?"he":"es"];
+    unitLabel=`${t("siman")} ${unitId.replace("s","")}`;
+  }
+  logs=[{id:uid(),date:today(),section,bookId,bookName,unitLabel,type,notes:"",ts:new Date().toISOString()},...logs.slice(0,999)];
+  save();
+}
+
+/* ═══ LOGS VIEW ════════════════════════════════════════════════ */
+function renderLogs(){
+  let rows="";
+  logs.slice(0,60).forEach(l=>{
+    const sm=SECTIONS_META[l.section]; const st=STUDY_TYPES.find(x=>x.id===l.type);
+    rows+=`<div class="row">
+      <div class="sec-icon-sm" style="background:${hsl(sm?.hue||250,80,92)}">${sm?.emoji}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:800;font-size:13px">${l.bookName||""}</div>
+        <div style="font-size:12px;color:var(--muted)">${l.unitLabel||""}</div>
+        <div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap">
+          ${secPill(l.section)}
+          <span class="pill" style="background:${hsl(st?.h||250,80,92)};color:${hsl(st?.h||250,65,35)}">${st?.icon} ${st?.[lang]||st?.es}</span>
+        </div>
+        ${l.notes?`<div style="margin-top:5px;font-size:11px;color:var(--muted);background:#f8fafc;border-radius:6px;padding:5px 8px;border-left:2px solid var(--border)">${l.notes}</div>`:""}
+      </div>
+      <div style="font-size:10px;color:var(--faint);flex-shrink:0;margin-top:1px">${l.date}</div>
+    </div>`;
+  });
+  if(!logs.length) rows=`<div class="empty">${t("noLogs")}</div>`;
+
+  document.getElementById("view-logs").innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-weight:900;font-size:15px">${lang==="he"?"יומן לימוד":"Diario de estudio"}</span>
+      <button class="btn btn-blue btn-sm" onclick="openLogModal()">+ ${lang==="he"?"שיעור":"Sesión"}</button>
+    </div>
+    <div class="card card-flush" style="padding:0 4px">${rows}</div>`;
+}
+
+/* ═══ GOALS VIEW ═══════════════════════════════════════════════ */
+function renderGoals(){
+  let html="";
+  if(!goals.length) html=`<div class="card"><div class="empty">${t("noGoals")}</div></div>`;
+  goals.forEach(g=>{
+    const sm=SECTIONS_META[g.section]; const dl=daysLeft(g.deadline); const over=!g.done&&dl<0;
+    html+=`<div class="goal-card" style="border-left-color:${g.done?"#10b981":over?"#f43f5e":hsl(sm?.hue||250,70,55)}">
+      <div style="display:flex;gap:9px;align-items:flex-start">
+        <input type="checkbox" ${g.done?"checked":""} onchange="toggleGoal('${g.id}')" style="margin-top:3px"/>
+        <div style="flex:1">
+          <div style="font-weight:900;font-size:14px;text-decoration:${g.done?"line-through":"none"}">${g.desc}</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin:6px 0">
+            ${secPill(g.section)}
+            ${g.target?`<span class="pill" style="background:#f1f5f9;color:var(--muted)">🎯 ${g.target}</span>`:""}
+            <span class="pill" style="background:${g.done?"#d1fae5":over?"#fff1f2":"#eff6ff"};color:${g.done?"#065f46":over?"#e11d48":"#1d4ed8"}">
+              ${g.done?`✅ ${t("completed")}`:over?`⚠️ ${t("overdue")} ${Math.abs(dl)}d`:dl===0?`⏳ ${t("dueToday")}`:`⏳ ${dl} ${t("daysLeft")}`}
+            </span>
+          </div>
+          ${!g.done?`<div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:10px;color:var(--faint)">${t("progress")}</span><span style="font-size:12px;font-weight:900;color:${hsl(sm?.hue||250,65,40)}">${g.progress}%</span></div>
+          <div class="pbar"><div class="pfill" style="width:${g.progress}%;background:${hsl(sm?.hue||250,70,55)}"></div></div>
+          <input type="range" min=0 max=100 step=5 value="${g.progress}" oninput="updateGoalProg('${g.id}',this.value)" style="margin-top:5px"/>`:""}
+        </div>
+        <button onclick="deleteGoal('${g.id}')" style="background:none;border:none;cursor:pointer;color:var(--border);font-size:18px;flex-shrink:0">×</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById("view-goals").innerHTML=`
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button class="btn btn-blue" onclick="openGoalModal()">+ ${t("addGoal").replace("+ ","")}</button>
+    </div>${html}`;
+}
+function toggleGoal(id){ goals=goals.map(g=>g.id===id?{...g,done:!g.done}:g); save(); renderGoals(); }
+function updateGoalProg(id,v){ goals=goals.map(g=>g.id===id?{...g,progress:+v}:g); save(); }
+function deleteGoal(id){ goals=goals.filter(g=>g.id!==id); save(); renderGoals(); }
+
+/* ═══ CHAZ VIEW ════════════════════════════════════════════════ */
+function renderChaz(){
+  const dueList=chazGoals.filter(c=>!c.done&&c.nextDate<=today());
+  let dueBanner="";
+  if(dueList.length){
+    let dRows="";
+    dueList.forEach(c=>{
+      const sm=SECTIONS_META[c.section];
+      dRows+=`<div style="display:flex;align-items:center;gap:9px;background:var(--white);border-radius:10px;padding:9px 11px;margin-top:7px">
+        <span style="font-size:18px">${sm?.emoji}</span>
+        <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:12px">${c.desc||c.material}</div><div style="font-size:10px;color:var(--faint)">${c.material}</div></div>
+        <div style="text-align:center;margin-right:6px"><div style="font-size:9px;color:var(--faint)">${t("streakLabel")}</div><div style="font-weight:900;font-size:16px;color:#f59e0b">🔥${c.streak}</div></div>
+        <button class="btn btn-blue btn-sm" onclick="markChaz('${c.id}')">${lang==="he"?"✓ עשיתי":"✓ Hice"}</button>
+      </div>`;
+    });
+    dueBanner=`<div style="background:#fffbeb;border:2px solid #fde68a;border-radius:12px;padding:12px;margin-bottom:10px">
+      <div style="font-weight:900;font-size:13px;color:#92400e">🔥 ${t("dueTodayAlert")}</div>${dRows}</div>`;
+  }
+
+  let cards="";
+  chazGoals.filter(c=>!c.done).forEach(c=>{
+    const sm=SECTIONS_META[c.section];
+    const dl=daysLeft(c.nextDate); const isdue=dl<=0;
+    const iv=CHAZ_INTERVALS.find(i=>i.id===c.interval)||{};
+    cards+=`<div class="chaz-card" style="border-left-color:${hsl(sm?.hue||250,70,55)}">
+      <div style="display:flex;gap:9px;align-items:flex-start;margin-bottom:9px">
+        <div class="sec-icon-sm" style="background:${hsl(sm?.hue||250,80,92)}">${sm?.emoji}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:900;font-size:13px">${c.desc||c.material}</div>
+          <div style="font-size:11px;color:var(--muted)">${c.material}</div>
+        </div>
+        <button onclick="deleteChaz('${c.id}')" style="background:none;border:none;cursor:pointer;color:var(--border);font-size:17px">×</button>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px">
+        ${secPill(c.section)}
+        <span class="pill" style="background:#f0fdf4;color:#166534">${iv.icon||""} ${t(c.interval)||c.interval}</span>
+        <span class="pill" style="background:${isdue?"#fef3c7":"#f0f9ff"};color:${isdue?"#92400e":"#0369a1"}">${isdue?"⚠️ "+t("dueToday"):"📅 "+lang==="he"?"בעוד "+dl+"י":"En "+dl+"d"}</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="font-size:18px">🔥</span>
+          <div><div style="font-weight:900;font-size:18px;color:#f59e0b;line-height:1">${c.streak}</div><div style="font-size:9px;color:var(--faint)">${t("streakLabel")}</div></div>
+        </div>
+        <button class="btn btn-sm" style="background:${isdue?"var(--blue)":"#f1f5f9"};color:${isdue?"#fff":"var(--muted)"};border:none" onclick="markChaz('${c.id}')">${isdue?t("markDone"):t("markToday")}</button>
+      </div>
+    </div>`;
+  });
+  if(!chazGoals.filter(c=>!c.done).length) cards=`<div class="card"><div class="empty">${t("noChaz")}</div></div>`;
+
+  document.getElementById("view-chaz").innerHTML=`
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button class="btn btn-blue" onclick="openChazModal()">+ ${t("addChaz").replace("+ ","")}</button>
+    </div>
+    ${dueBanner}${cards}`;
+}
+function markChaz(id){
+  chazGoals=chazGoals.map(c=>{
+    if(c.id!==id) return c;
+    return {...c,streak:c.streak+1,nextDate:addDays(today(),c.days),history:[...(c.history||[]),today()]};
+  });
+  save(); renderChaz(); renderHome();
+  toast("🧠 "+t("markDone")+" 🔥");
+}
+function deleteChaz(id){ chazGoals=chazGoals.filter(c=>c.id!==id); save(); renderChaz(); }
+
+/* ═══ LOG MODAL (manual) ══════════════════════════════════════ */
+function openLogModal(){
+  const secOpts=Object.entries(SECTIONS_META).map(([k,s])=>
+    `<option value="${k}">${s.emoji} ${s[lang]||s.es}</option>`).join("");
+  openModal(`
+    <h3>${t("registerSession")}</h3>
+    <div class="field"><label class="lbl">${t("date")}</label><input class="inp" type="date" id="lf-date" value="${today()}"/></div>
+    <div class="field"><label class="lbl">${t("section")}</label>
+      <select class="sel" id="lf-sec" onchange="updateLogBook()">${secOpts}</select></div>
+    <div class="field"><label class="lbl">${t("book")}</label>
+      <select class="sel" id="lf-book" onchange="updateLogUnit()"></select></div>
+    <div class="field" id="lf-unit-wrap"><label class="lbl" id="lf-unit-lbl">${t("unit")}</label>
+      <select class="sel" id="lf-unit"></select></div>
+    <div class="field"><label class="lbl">${t("type")}</label>
+      <div class="type-grid">
+        ${STUDY_TYPES.map((tp,i)=>`<label class="type-opt" id="lto-${tp.id}" style="${i===0?"border-color:var(--blue);background:#eef2ff;color:var(--blue2)":""}">
+          <input type="radio" name="lf-type" value="${tp.id}" ${i===0?"checked":""} onchange="highlightType()"/>
+          ${tp.icon}<br>${tp[lang]||tp.es}</label>`).join("")}
+      </div>
+    </div>
+    <div class="field"><label class="lbl">${t("notes")}</label>
+      <textarea class="inp" id="lf-notes" placeholder="${t("notesPlaceholder")}"></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal()">${t("cancel")}</button>
+      <button class="btn btn-blue" onclick="saveManualLog()">${t("save")}</button>
+    </div>`);
+  updateLogBook();
+}
+
+function updateLogBook(){
+  const sec=document.getElementById("lf-sec").value;
+  const bk=document.getElementById("lf-book");
+  bk.innerHTML="";
+  if(sec==="gemara") for(const s of Object.values(SHAS)) for(const m of s.masechtot) bk.innerHTML+=`<option value="${m.id}">${m[lang==="he"?"he":"es"]}</option>`;
+  else if(sec==="mishnah") for(const s of Object.values(MISHNAH)) for(const m of s.masechtot) bk.innerHTML+=`<option value="${m.id}">${m[lang==="he"?"he":"es"]}</option>`;
+  else if(sec==="tanach") for(const s of Object.values(TANACH)) for(const b of s.books) bk.innerHTML+=`<option value="${b.id}">${b[lang==="he"?"he":"es"]}</option>`;
+  else if(sec==="shulchan") SHULCHAN.forEach(ch=>bk.innerHTML+=`<option value="${ch.id}">${ch[lang==="he"?"he":"es"]}</option>`);
+  updateLogUnit();
+}
+
+function updateLogUnit(){
+  const sec=document.getElementById("lf-sec").value;
+  const bookId=document.getElementById("lf-book").value;
+  const unitSel=document.getElementById("lf-unit");
+  const unitLbl=document.getElementById("lf-unit-lbl");
+  unitSel.innerHTML="";
+  if(sec==="gemara"){
+    unitLbl.textContent=t("daf")+" / "+t("amud");
+    let m; for(const s of Object.values(SHAS)) for(const mx of s.masechtot) if(mx.id===bookId) m=mx;
+    if(m) for(let d=2;d<=m.dafim+1;d++) ["א","ב"].forEach(a=>unitSel.innerHTML+=`<option value="${d}${a}">${d}${a}</option>`);
+  } else if(sec==="mishnah"){
+    unitLbl.textContent=t("perek")+" · "+t("mishna");
+    let m; for(const s of Object.values(MISHNAH)) for(const mx of s.masechtot) if(mx.id===bookId) m=mx;
+    if(m) m.perakim.forEach((cnt,pi)=>{ for(let mi=1;mi<=cnt;mi++) unitSel.innerHTML+=`<option value="p${pi+1}m${mi}">${t("perek")} ${pi+1} · ${t("mishna")} ${mi}</option>`; });
+  } else if(sec==="tanach"){
+    unitLbl.textContent=t("perek");
+    let b; for(const s of Object.values(TANACH)) for(const bk of s.books) if(bk.id===bookId) b=bk;
+    if(b) for(let p=1;p<=b.perakim;p++) unitSel.innerHTML+=`<option value="p${p}">${t("perek")} ${p}</option>`;
+  } else if(sec==="shulchan"){
+    unitLbl.textContent=t("siman");
+    const ch=SHULCHAN.find(c=>c.id===bookId);
+    if(ch) for(let s=1;s<=ch.simanim;s++) unitSel.innerHTML+=`<option value="s${s}">${t("siman")} ${s}</option>`;
+  }
+}
+
+function highlightType(){
+  const val=document.querySelector("input[name='lf-type']:checked")?.value;
+  STUDY_TYPES.forEach(tp=>{
+    const el=document.getElementById("lto-"+tp.id); if(!el) return;
+    const on=tp.id===val;
+    el.style.borderColor=on?`hsl(${tp.h},70%,55%)`:"var(--border)";
+    el.style.background=on?`hsl(${tp.h},80%,94%)`:"var(--white)";
+    el.style.color=on?`hsl(${tp.h},60%,35%)`:"var(--muted)";
+  });
+}
+
+function saveManualLog(){
+  const date=document.getElementById("lf-date").value;
+  const sec=document.getElementById("lf-sec").value;
+  const bookId=document.getElementById("lf-book").value;
+  const unitId=document.getElementById("lf-unit").value;
+  const type=document.querySelector("input[name='lf-type']:checked")?.value||"study";
+  const notes=document.getElementById("lf-notes").value.trim();
+  // get names
+  let bookName="", unitLabel="";
+  if(sec==="gemara"){ for(const s of Object.values(SHAS)) for(const m of s.masechtot) if(m.id===bookId){ bookName=m[lang==="he"?"he":"es"]; break; } unitLabel=t("daf")+" "+unitId; }
+  else if(sec==="mishnah"){ for(const s of Object.values(MISHNAH)) for(const m of s.masechtot) if(m.id===bookId){ bookName=m[lang==="he"?"he":"es"]; break; } unitLabel=unitId.replace("p",t("perek")+" ").replace("m"," "+t("mishna")+" "); }
+  else if(sec==="tanach"){ for(const s of Object.values(TANACH)) for(const b of s.books) if(b.id===bookId){ bookName=b[lang==="he"?"he":"es"]; break; } unitLabel=t("perek")+" "+unitId.replace("p",""); }
+  else if(sec==="shulchan"){ const ch=SHULCHAN.find(c=>c.id===bookId); if(ch) bookName=ch[lang==="he"?"he":"es"]; unitLabel=t("siman")+" "+unitId.replace("s",""); }
+  setP(sec, bookId, unitId, type);
+  logs=[{id:uid(),date,section:sec,bookId,bookName,unitLabel,type,notes,ts:new Date().toISOString()},...logs.slice(0,999)];
+  save(); closeModal();
+  if(currentTab==="logs") renderLogs();
+  renderHome();
+  toast("✅ "+t("save")+"!");
+}
+
+/* ═══ GOAL MODAL ══════════════════════════════════════════════ */
+function openGoalModal(){
+  const secOpts=Object.entries(SECTIONS_META).map(([k,s])=>`<option value="${k}">${s.emoji} ${s[lang]||s.es}</option>`).join("");
+  openModal(`
+    <h3>🎯 ${lang==="he"?"יעד חדש":"Nueva meta"}</h3>
+    <div class="field"><label class="lbl">${t("goalDesc")}</label><input class="inp" id="gf-desc" placeholder="${lang==="he"?"למשל: לסיים מסכת ברכות":"Ej: Terminar Masechet Berajot"}"/></div>
+    <div class="field"><label class="lbl">${t("section")}</label><select class="sel" id="gf-sec">${secOpts}</select></div>
+    <div class="field"><label class="lbl">${t("targetUnit")}</label><input class="inp" id="gf-target" placeholder="${lang==="he"?"64 דפים, 150 פרקים…":"64 dafim, 150 cap., 200 sim…"}"/></div>
+    <div class="field"><label class="lbl">${t("deadline")}</label><input class="inp" type="date" id="gf-deadline"/></div>
+    <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal()">${t("cancel")}</button>
+      <button class="btn btn-blue" onclick="saveGoal()">${t("save")}</button>
+    </div>`);
+}
+function saveGoal(){
+  const desc=document.getElementById("gf-desc").value.trim();
+  const section=document.getElementById("gf-sec").value;
+  const target=document.getElementById("gf-target").value.trim();
+  const deadline=document.getElementById("gf-deadline").value;
+  if(!desc||!deadline){toast(lang==="he"?"מלא את כל השדות":"Completa todos los campos",false);return;}
+  goals=[{id:uid(),desc,section,target,deadline,progress:0,done:false,created:today()},...goals];
+  save(); closeModal();
+  if(currentTab==="goals") renderGoals();
+  renderHome();
+  toast("🎯 "+(lang==="he"?"יעד נשמר!":"¡Meta guardada!"));
+}
+
+/* ═══ CHAZ MODAL ══════════════════════════════════════════════ */
+function openChazModal(){
+  const secOpts=Object.entries(SECTIONS_META).map(([k,s])=>`<option value="${k}">${s.emoji} ${s[lang]||s.es}</option>`).join("");
+  openModal(`
+    <h3>🧠 ${lang==="he"?"יעד חזרה חדש":"Nueva meta de Jazará"}</h3>
+    <div class="field"><label class="lbl">${t("chazDesc")}</label><input class="inp" id="cf-desc" placeholder="${lang==="he"?"שם החזרה…":"Nombre de la jazará…"}"/></div>
+    <div class="field"><label class="lbl">${t("section")}</label><select class="sel" id="cf-sec">${secOpts}</select></div>
+    <div class="field"><label class="lbl">${t("material")}</label><input class="inp" id="cf-mat" placeholder="${lang==="he"?"מסכת ברכות, פרקים א-ג…":"Masechet Berajot, Caps. 1-3…"}"/></div>
+    <div class="field"><label class="lbl">${t("frequency")}</label>
+      <div class="chaz-iv-grid" id="chaz-ivs">
+        ${CHAZ_INTERVALS.map((iv,i)=>`<label class="iv-opt" id="civ-${iv.id}" style="${i===2?"border-color:var(--blue);background:#eef2ff;color:var(--blue2)":""}">
+          <input type="radio" name="cf-iv" value="${iv.id}" ${i===2?"checked":""} onchange="onChazIvChange()"/>
+          <div style="font-size:16px;margin-bottom:2px">${iv.icon}</div>${t(iv.id)}</label>`).join("")}
+      </div>
+      <div id="custom-wrap" style="display:none;margin-top:10px">
+        <label class="lbl">${t("customDays")}</label>
+        <input class="inp" type="number" id="cf-custom" value="14" min="1" max="365"/>
+      </div>
+    </div>
+    <div class="field"><label class="lbl">${t("startDate")}</label><input class="inp" type="date" id="cf-start" value="${today()}"/></div>
+    <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal()">${t("cancel")}</button>
+      <button class="btn btn-blue" onclick="saveChaz()">${t("save")}</button>
+    </div>`);
+}
+function onChazIvChange(){
+  const val=document.querySelector("input[name='cf-iv']:checked")?.value;
+  CHAZ_INTERVALS.forEach(iv=>{
+    const el=document.getElementById("civ-"+iv.id); if(!el) return;
+    const on=iv.id===val;
+    el.style.borderColor=on?"var(--blue)":"var(--border)";
+    el.style.background=on?"#eef2ff":"var(--white)";
+    el.style.color=on?"var(--blue2)":"var(--muted)";
+  });
+  document.getElementById("custom-wrap").style.display=val==="custom"?"block":"none";
+}
+function saveChaz(){
+  const desc=document.getElementById("cf-desc").value.trim();
+  const section=document.getElementById("cf-sec").value;
+  const material=document.getElementById("cf-mat").value.trim();
+  const interval=document.querySelector("input[name='cf-iv']:checked")?.value||"weekly";
+  const customD=+document.getElementById("cf-custom")?.value||14;
+  const start=document.getElementById("cf-start").value;
+  if(!material){toast(lang==="he"?"מלא את השדות":"Completa los campos",false);return;}
+  const iv=CHAZ_INTERVALS.find(i=>i.id===interval);
+  const days=interval==="custom"?customD:iv.days;
+  const nextDate=addDays(start,days);
+  chazGoals=[{id:uid(),desc,section,material,interval,days,nextDate,streak:0,history:[],done:false,created:today()},...chazGoals];
+  save(); closeModal();
+  if(currentTab==="chaz") renderChaz();
+  renderHome();
+  toast("🧠 "+(lang==="he"?"חזרה נשמרה!":"¡Jazará guardada!"));
+}
+
+/* ═══ NAVIGATION ══════════════════════════════════════════════ */
+const RENDER_FNS={home:renderHome,study:renderStudy,goals:renderGoals,chaz:renderChaz,logs:renderLogs};
+
+function setTab(tab){
+  currentTab=tab;
+  document.querySelectorAll(".view").forEach(v=>v.style.display="none");
+  document.getElementById("view-"+tab).style.display="block";
+  document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  document.getElementById("fab").style.display=["home","logs","study"].includes(tab)?"flex":"none";
+  if(RENDER_FNS[tab]) RENDER_FNS[tab]();
+}
+document.querySelectorAll(".bnav-btn").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+document.getElementById("fab").addEventListener("click",()=>openLogModal());
+
+/* ═══ PWA ═════════════════════════════════════════════════════ */
+window._deferredInstall=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();window._deferredInstall=e;if(currentTab==="home")renderHome();});
+function installPWA(){ if(!window._deferredInstall)return; window._deferredInstall.prompt(); window._deferredInstall.userChoice.then(()=>{window._deferredInstall=null;renderHome();}); }
+
+/* ═══ INIT ════════════════════════════════════════════════════ */
+if(lang==="he"){ document.documentElement.lang="he"; document.documentElement.dir="rtl"; document.getElementById("lang-btn").textContent="🌐 Español"; document.getElementById("app-sub-lbl").textContent=T.he.appSub; }
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+setTab("home");
+</script>
+</body>
+</html>
